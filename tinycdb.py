@@ -197,13 +197,13 @@ def test_make():
     m.finish()
    
 def test_find():
-    import time
+    import time, random
 
     f = Finder('test.db')
     print 'seek:', f.seek('zhaoweikid0')
     start = time.time()
     for i in xrange(1, 100):
-        a = f.find('zhaoweikid1')
+        a = f.find('zhaoweikid' + str(random.randint(0,100)))
     end = time.time()
     print 'find time:', end-start, a
 
@@ -219,6 +219,7 @@ def test_find():
 
 
 if __name__ == '__main__':
+    test_make()
     test_find()
 
 
