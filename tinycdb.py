@@ -122,10 +122,17 @@ class Maker:
 
     def put(self, key, val, flags):
         cdblib.cdb_make_put(self.cdbm, key, len(key), val, len(val), flags) 
+    
 
+    def __setitem__(self, key, val):
+        cdblib.cdb_make_add(self.cdbm, key, len(key), val, len(val)) 
+        
 
     def finish(self):
         cdblib.cdb_make_finish(self.cdbm)
+
+    def close(self):
+        self.finish()
 
 
 class Finder:
@@ -135,7 +142,12 @@ class Finder:
         self.cdb = cdb()
         
         cdblib.cdb_init(self.cdb, self.fd)
-
+    
+    def __getitem__(self, key):
+        ret = self.find(key)
+        if ret is None:
+            raise IndexError, 'not found ' + key
+        return ret
 
     def find(self, key):
         ret = cdblib.cdb_find(self.cdb, key, len(key))
@@ -193,8 +205,10 @@ def test_make():
     m = Maker('test.db')
 
     for i in xrange(1, 100000):
-        m.add('zhaoweikid' + str(i%5000), 'testinfoiiiiiiiiiiiiiiiii'+str(i))
-    m.finish()
+        #m.add('zhaoweikid' + str(i%5000), 'testinfoiiiiiiiiiiiiiiiii'+str(i))
+        m['zhaoweikid' + str(i%5000)] = 'testinfoiiiiiiiiiiiiiiiii'+str(i)
+    #m.finish()
+    m.close()
    
 def test_find():
     import time, random
@@ -203,15 +217,27 @@ def test_find():
     print 'seek:', f.seek('zhaoweikid0')
     start = time.time()
     for i in xrange(1, 100):
-        a = f.find('zhaoweikid' + str(random.randint(0,100)))
+        #a = f.find('zhaoweikid' + str(random.randint(0,100)))
+        a = f['zhaoweikid' + str(random.randint(0,100))]
     end = time.time()
     print 'find time:', end-start, a
 
     start = time.time()
-    for i in xrange(1, 10000):
+    for i in xrange(1, 100):
         a = f.findall('zhaoweikid2')
     end = time.time()
-    print 'findall time:', end-start, a
+    print 'findall time:', end-start
+    
+    start = time.time()
+    try:
+        a = f['zzzzzz']
+    except Exception, e:
+        end = time.time()
+        print 'find zzzzzz error:',
+        print e
+    else:
+        end = time.time()
+    print 'find time:', end-start
 
 
     f.close()
