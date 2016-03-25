@@ -13,3 +13,5 @@ http://www.corpit.ru/mjt/tinycdb/tinycdb_0.77.tar.gz
 
 编译出libcdb.so 或者是libcdb.dll
 放到和tinycdb.py的相同目录下
+
+LICENCE:  BSD
